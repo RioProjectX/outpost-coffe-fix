@@ -39,6 +39,7 @@ import {
   Instagram,
   Upload,
   Image as ImageIcon,
+  Link as LinkIcon,
 } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import {
@@ -444,6 +445,7 @@ export default function App() {
   const [newProdTags, setNewProdTags] = useState('');
   const [newProdImageUrl, setNewProdImageUrl] = useState('');
   const [newProdIsBest, setNewProdIsBest] = useState(false);
+  const [addFormDragActive, setAddFormDragActive] = useState(false);
 
   // Editing Menu Item state
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
@@ -454,6 +456,27 @@ export default function App() {
   const [editTags, setEditTags] = useState('');
   const [editImageUrl, setEditImageUrl] = useState('');
   const [editIsBest, setEditIsBest] = useState(false);
+  const [editFormDragActive, setEditFormDragActive] = useState(false);
+
+  // Helper for converting uploaded image file to string representation
+  const handleImageUpload = (file: File, isEdit: boolean) => {
+    if (!file) return;
+    if (file.size > 2.5 * 1024 * 1024) {
+      displayToast("⚠️ Ukuran gambar terlalu besar! Maksimal 2.5MB agar penyimpanan database tetap ringan.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64String = reader.result as string;
+      if (isEdit) {
+        setEditImageUrl(base64String);
+      } else {
+        setNewProdImageUrl(base64String);
+      }
+      displayToast("✓ Gambar berhasil diunggah!");
+    };
+    reader.readAsDataURL(file);
+  };
 
   // --- Toast/Micro interaction indicator ---
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -3464,16 +3487,99 @@ export default function App() {
                                 />
                               </div>
 
-                              <div className="sm:col-span-2 space-y-1">
-                                <label className="text-brand-brown font-bold text-[10px] uppercase tracking-wider block">Link URL Gambar Menu</label>
-                                <input
-                                  id="inp-newprod-imageurl"
-                                  type="text"
-                                  placeholder="https://images.unsplash.com/photo-..."
-                                  value={newProdImageUrl}
-                                  onChange={(e) => setNewProdImageUrl(e.target.value)}
-                                  className="w-full px-3 py-2 border border-brand-green/15 rounded-xl text-xs font-mono text-brand-green focus:outline-none focus:border-brand-green"
-                                />
+                              <div className="sm:col-span-2 space-y-2">
+                                <label className="text-brand-brown font-bold text-[10px] uppercase tracking-wider block">Gambar Menu Sajian</label>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pb-1">
+                                  {/* Drag/Drop Zone */}
+                                  <div 
+                                    className={`relative flex flex-col items-center justify-center border-2 border-dashed rounded-2xl p-4 text-center transition-all cursor-pointer ${
+                                      addFormDragActive 
+                                        ? 'border-brand-green bg-brand-green/10 scale-98' 
+                                        : 'border-brand-green/20 hover:border-brand-green/40 hover:bg-brand-green/5'
+                                    }`}
+                                    onDragOver={(e) => {
+                                      e.preventDefault();
+                                      setAddFormDragActive(true);
+                                    }}
+                                    onDragLeave={(e) => {
+                                      e.preventDefault();
+                                      setAddFormDragActive(false);
+                                    }}
+                                    onDrop={(e) => {
+                                      e.preventDefault();
+                                      setAddFormDragActive(false);
+                                      const file = e.dataTransfer.files?.[0];
+                                      if (file) handleImageUpload(file, false);
+                                    }}
+                                    onClick={() => document.getElementById('inp-newprod-file')?.click()}
+                                  >
+                                    <input
+                                      id="inp-newprod-file"
+                                      type="file"
+                                      accept="image/*"
+                                      className="hidden"
+                                      onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) handleImageUpload(file, false);
+                                      }}
+                                    />
+                                    {newProdImageUrl && newProdImageUrl.startsWith('data:image/') ? (
+                                      <div className="relative w-full aspect-video rounded-lg overflow-hidden group">
+                                        <img 
+                                          src={newProdImageUrl} 
+                                          alt="Preview" 
+                                          className="w-full h-full object-cover"
+                                          referrerPolicy="no-referrer"
+                                        />
+                                        <div className="absolute inset-0 bg-brand-brown/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                          <span className="text-[10px] text-white font-bold uppercase tracking-wider">Ganti Gambar</span>
+                                        </div>
+                                      </div>
+                                    ) : (
+                                      <div className="flex flex-col items-center py-2">
+                                        <Upload className="w-6 h-6 text-brand-green/70 mb-1.5" />
+                                        <p className="font-bold text-[11px] text-brand-green">Unggah Berkas Gambar</p>
+                                        <p className="text-[10px] text-brand-brown/60 mt-0.5">Tarik gambar kemari atau klik untuk memilih</p>
+                                      </div>
+                                    )}
+                                  </div>
+
+                                  {/* URL Link Input Option */}
+                                  <div className="flex flex-col justify-between border border-brand-green/10 rounded-2xl p-4 bg-brand-cream/5">
+                                    <div className="space-y-1">
+                                      <div className="flex items-center gap-1.5">
+                                        <LinkIcon className="w-3.5 h-3.5 text-brand-green" />
+                                        <span className="font-bold text-[11px] text-brand-green">Gunakan Tautan URL</span>
+                                      </div>
+                                      <p className="text-[10px] text-brand-brown/60 leading-normal">
+                                        Masukkan link gambar dari internet jika tidak ingin mengunggah berkas lokal secara langsung.
+                                      </p>
+                                    </div>
+                                    <div className="space-y-2 mt-3">
+                                      <input
+                                        id="inp-newprod-imageurl"
+                                        type="text"
+                                        placeholder="https://images.unsplash.com/photo-..."
+                                        value={newProdImageUrl.startsWith('data:image/') ? '' : newProdImageUrl}
+                                        onChange={(e) => setNewProdImageUrl(e.target.value)}
+                                        className="w-full px-3 py-2 border border-brand-green/15 rounded-xl text-xs font-mono text-brand-green focus:outline-none focus:border-brand-green placeholder:font-sans bg-white"
+                                      />
+                                      {newProdImageUrl && !newProdImageUrl.startsWith('data:image/') && (
+                                        <div className="relative w-full aspect-[21/9] rounded-lg overflow-hidden border border-brand-green/10 bg-black/5 flex items-center justify-center">
+                                          <img 
+                                            src={newProdImageUrl} 
+                                            alt="Preview" 
+                                            className="w-full h-full object-cover"
+                                            referrerPolicy="no-referrer"
+                                            onError={(e) => {
+                                              (e.target as HTMLElement).style.display = 'none';
+                                            }}
+                                          />
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
                               </div>
 
                               <div className="sm:col-span-2 space-y-1">
@@ -3585,16 +3691,99 @@ export default function App() {
                                 />
                               </div>
 
-                              <div className="sm:col-span-2 space-y-1">
-                                <label className="text-brand-brown font-bold text-[10px] uppercase tracking-wider block">Link URL Gambar Menu (Bisa diedit sesuka hati)</label>
-                                <input
-                                  id="inp-editprod-imageurl"
-                                  type="text"
-                                  placeholder="https://images.unsplash.com/photo-..."
-                                  value={editImageUrl}
-                                  onChange={(e) => setEditImageUrl(e.target.value)}
-                                  className="w-full px-3 py-2 border border-amber-300 rounded-xl text-xs font-mono text-brand-green bg-white focus:outline-none focus:border-brand-green"
-                                />
+                              <div className="sm:col-span-2 space-y-2">
+                                <label className="text-brand-brown font-bold text-[10px] uppercase tracking-wider block">Gambar Menu Sajian (Edit)</label>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pb-1">
+                                  {/* Drag/Drop Zone */}
+                                  <div 
+                                    className={`relative flex flex-col items-center justify-center border-2 border-dashed rounded-2xl p-4 text-center transition-all cursor-pointer ${
+                                      editFormDragActive 
+                                        ? 'border-amber-500 bg-amber-500/10 scale-98' 
+                                        : 'border-amber-500/25 hover:border-amber-500/50 hover:bg-amber-500/5'
+                                    }`}
+                                    onDragOver={(e) => {
+                                      e.preventDefault();
+                                      setEditFormDragActive(true);
+                                    }}
+                                    onDragLeave={(e) => {
+                                      e.preventDefault();
+                                      setEditFormDragActive(false);
+                                    }}
+                                    onDrop={(e) => {
+                                      e.preventDefault();
+                                      setEditFormDragActive(false);
+                                      const file = e.dataTransfer.files?.[0];
+                                      if (file) handleImageUpload(file, true);
+                                    }}
+                                    onClick={() => document.getElementById('inp-editprod-file')?.click()}
+                                  >
+                                    <input
+                                      id="inp-editprod-file"
+                                      type="file"
+                                      accept="image/*"
+                                      className="hidden"
+                                      onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) handleImageUpload(file, true);
+                                      }}
+                                    />
+                                    {editImageUrl && editImageUrl.startsWith('data:image/') ? (
+                                      <div className="relative w-full aspect-video rounded-lg overflow-hidden group">
+                                        <img 
+                                          src={editImageUrl} 
+                                          alt="Preview" 
+                                          className="w-full h-full object-cover"
+                                          referrerPolicy="no-referrer"
+                                        />
+                                        <div className="absolute inset-0 bg-brand-brown/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                          <span className="text-[10px] text-white font-bold uppercase tracking-wider">Ganti Gambar</span>
+                                        </div>
+                                      </div>
+                                    ) : (
+                                      <div className="flex flex-col items-center py-2">
+                                        <Upload className="w-6 h-6 text-amber-600 mb-1.5" />
+                                        <p className="font-bold text-[11px] text-amber-700">Unggah Berkas Gambar</p>
+                                        <p className="text-[10px] text-brand-brown/60 mt-0.5">Tarik gambar kemari atau klik untuk memilih</p>
+                                      </div>
+                                    )}
+                                  </div>
+
+                                  {/* URL Link Input Option */}
+                                  <div className="flex flex-col justify-between border border-amber-500/20 rounded-2xl p-4 bg-amber-500/5">
+                                    <div className="space-y-1">
+                                      <div className="flex items-center gap-1.5">
+                                        <LinkIcon className="w-3.5 h-3.5 text-amber-700" />
+                                        <span className="font-bold text-[11px] text-amber-700">Gunakan Tautan URL</span>
+                                      </div>
+                                      <p className="text-[10px] text-brand-brown/60 leading-normal">
+                                        Masukkan link gambar dari internet jika tidak ingin mengunggah berkas lokal secara langsung.
+                                      </p>
+                                    </div>
+                                    <div className="space-y-2 mt-3">
+                                      <input
+                                        id="inp-editprod-imageurl"
+                                        type="text"
+                                        placeholder="https://images.unsplash.com/photo-..."
+                                        value={editImageUrl.startsWith('data:image/') ? '' : editImageUrl}
+                                        onChange={(e) => setEditImageUrl(e.target.value)}
+                                        className="w-full px-3 py-2 border border-amber-300 rounded-xl text-xs font-mono text-brand-green bg-white focus:outline-none focus:border-brand-green placeholder:font-sans"
+                                      />
+                                      {editImageUrl && !editImageUrl.startsWith('data:image/') && (
+                                        <div className="relative w-full aspect-[21/9] rounded-lg overflow-hidden border border-amber-500/10 bg-black/5 flex items-center justify-center">
+                                          <img 
+                                            src={editImageUrl} 
+                                            alt="Preview" 
+                                            className="w-full h-full object-cover"
+                                            referrerPolicy="no-referrer"
+                                            onError={(e) => {
+                                              (e.target as HTMLElement).style.display = 'none';
+                                            }}
+                                          />
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
                               </div>
 
                               <div className="sm:col-span-2 space-y-1">
