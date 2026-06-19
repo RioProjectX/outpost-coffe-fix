@@ -1,0 +1,27 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper to validate basic structure
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() < 100;
+    }
+
+    match /menu/{menuId} {
+      allow read: if true;
+      allow write: if true; // Admin can add, update, or remove menu items
+    }
+
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create, update, delete: if true; // Customers write, admin replies
+    }
+
+    match /orders/{orderId} {
+      allow read, write: if true; // Customers checkout, cashier processes
+    }
+
+    match /chats/{chatId} {
+      allow read, write: if true; // Customers and support chat in real-time
+    }
+  }
+}

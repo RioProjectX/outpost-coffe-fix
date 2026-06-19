@@ -1,0 +1,8 @@
+{
+  "name": "Remix: GLASS Coffee",
+  "description": "Sensational coffee and premium experience platform utilizing Poppins and Playfair Display styling.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

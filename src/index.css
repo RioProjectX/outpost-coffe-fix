@@ -1,0 +1,60 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400..700;1,400..700&family=JetBrains+Mono:wght@400;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Playfair Display", Georgia, serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  --color-brand-cream: #FAF6F0;
+  --color-brand-cream-light: #FAF6F0;
+  --color-brand-cream-dark: #FAF6F0;
+  --color-brand-green: #4A533C;
+  --color-brand-green-light: #5F6A4C;
+  --color-brand-green-dark: #2B1E17;
+  --color-brand-brown: #2B1E17;
+  --color-brand-brown-light: #A48E74;
+}
+
+/* Base resets or bespoke utility classes matching Outpost Coffee style */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+}
+
+body {
+  background-color: var(--color-brand-cream);
+  color: var(--color-brand-brown);
+  font-family: var(--font-sans);
+}
+
+/* Glass effect mimicking the OUTPOST presentation layout */
+.glass-panel {
+  background-color: rgba(245, 242, 235, 0.85);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(78, 88, 62, 0.1);
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: var(--color-brand-cream);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--color-brand-green);
+  border-radius: 3px;
+}
+
+/* Hide scrollbars but keep functionality */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+

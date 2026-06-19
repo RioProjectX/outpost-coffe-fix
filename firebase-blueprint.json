@@ -1,0 +1,101 @@
+{
+  "entities": {
+    "MenuItem": {
+      "title": "MenuItem",
+      "description": "A single menu item offered by the coffee shop",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "category": { "type": "string" },
+        "description": { "type": "string" },
+        "price": { "type": "number" },
+        "tags": { "type": "array" },
+        "isAvailable": { "type": "boolean" },
+        "rating": { "type": "number" },
+        "imageUrl": { "type": "string" },
+        "isHotAvailable": { "type": "boolean" },
+        "isIcedAvailable": { "type": "boolean" },
+        "isBest": { "type": "boolean" }
+      },
+      "required": ["id", "name", "category", "price", "isAvailable"]
+    },
+    "GuestReview": {
+      "title": "GuestReview",
+      "description": "A review or assessment posted by a customer",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "rating": { "type": "number" },
+        "comment": { "type": "string" },
+        "date": { "type": "string" },
+        "reply": { "type": "string" }
+      },
+      "required": ["id", "name", "rating", "comment", "date"]
+    },
+    "CartItem": {
+      "title": "CartItem",
+      "description": "An item in the shopping cart configuration",
+      "type": "object",
+      "properties": {
+        "item": { "type": "object" },
+        "quantity": { "type": "number" },
+        "temperature": { "type": "string" },
+        "sugarLevel": { "type": "string" },
+        "notes": { "type": "string" }
+      },
+      "required": ["item", "quantity"]
+    },
+    "CashierOrder": {
+      "title": "CashierOrder",
+      "description": "A completed or pending transaction order record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "items": { "type": "array" },
+        "customerName": { "type": "string" },
+        "tableNumberOrType": { "type": "string" },
+        "totalAmount": { "type": "number" },
+        "status": { "type": "string" },
+        "paymentMethod": { "type": "string" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["id", "items", "customerName", "tableNumberOrType", "totalAmount", "status", "paymentMethod", "timestamp"]
+    },
+    "LiveChatMessage": {
+      "title": "LiveChatMessage",
+      "description": "A message submitted in the live customer service chat window",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "sender": { "type": "string" },
+        "senderName": { "type": "string" },
+        "text": { "type": "string" },
+        "timestamp": { "type": "string" },
+        "guestSessionId": { "type": "string" },
+        "readByGuest": { "type": "boolean" },
+        "readByAdmin": { "type": "boolean" }
+      },
+      "required": ["id", "sender", "senderName", "text", "timestamp", "guestSessionId"]
+    }
+  },
+  "firestore": {
+    "/menu/{menuId}": {
+      "schema": "MenuItem",
+      "description": "Core listing of menu items and their details"
+    },
+    "/reviews/{reviewId}": {
+      "schema": "GuestReview",
+      "description": "Customer reviews and feedback with optional back-office replies"
+    },
+    "/orders/{orderId}": {
+      "schema": "CashierOrder",
+      "description": "Real-time orders processed by the shop website/cashier panel"
+    },
+    "/chats/{chatId}": {
+      "schema": "LiveChatMessage",
+      "description": "Customer support messaging channel records"
+    }
+  }
+}
